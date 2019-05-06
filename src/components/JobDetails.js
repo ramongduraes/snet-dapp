@@ -323,6 +323,7 @@ export class Jobdetails extends React.Component {
           }
 
           const Service = this.serviceSpecJSON.lookup(serviceName)
+          console.log("Service:", Service);
           this.makeGRPCCall(Service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject)
 
           return window.ethjs.personal_ecRecover(msg, signed);
