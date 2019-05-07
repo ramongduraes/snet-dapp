@@ -17,7 +17,11 @@ export default class ExampleService extends React.Component {
             serviceName: "Calculator",
             methodName: "Select a method",
             a: 0,
-            b: 0
+            b: 0,
+            channel_id: 0,
+            spent_amount: 0,
+            nonce: 0,
+            calls_num: 0
         };
     }
 
@@ -43,11 +47,13 @@ export default class ExampleService extends React.Component {
     }
 
     submitAction() {
-        this.props.callApiCallback(this.state.serviceName,
-            this.state.methodName, {
-                a: this.state.a,
-                b: this.state.b
-            });
+        this.setState({calls_num: 0});
+        this.renderComplete();
+        // this.props.callApiCallback(this.state.serviceName,
+        //     this.state.methodName, {
+        //         a: this.state.a,
+        //         b: this.state.b
+        //     });
     }
 
     renderServiceMethodNames(serviceMethodNames) {
@@ -58,10 +64,12 @@ export default class ExampleService extends React.Component {
     }
 
     renderForm() {
+        const response = this.parseResponse();
         const service = this.props.protoSpec.findServiceByName(this.state.serviceName);
         const serviceMethodNames = service.methodNames;
         return (
             <React.Fragment>
+                <p style={{fontSize: "13px"}}>Response from service is {response} </p>
                 <div className="row">
                     <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Method Name: </div>
                     <div className="col-md-3 col-lg-3">
@@ -91,6 +99,40 @@ export default class ExampleService extends React.Component {
                                onKeyPress={(e) => this.onKeyPressvalidator(e)}></input>
                     </div>
                 </div>
+
+
+
+
+                <div className="row">
+                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>ChannelId: </div>
+                    <div className="col-md-3 col-lg-3">
+                        <input name="channel_id" type="number"
+                               style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
+                               value={this.state.channel_id} onChange={this.handleFormUpdate}
+                               onKeyPress={(e) => this.onKeyPressvalidator(e)}></input>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>SpentAmount: </div>
+                    <div className="col-md-3 col-lg-3">
+                        <input name="spent_amount" type="number"
+                               style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
+                               value={this.state.spent_amount} onChange={this.handleFormUpdate}
+                               onKeyPress={(e) => this.onKeyPressvalidator(e)}></input>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Nonce: </div>
+                    <div className="col-md-3 col-lg-3">
+                        <input name="nonce" type="number"
+                               style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
+                               value={this.state.nonce} onChange={this.handleFormUpdate}
+                               onKeyPress={(e) => this.onKeyPressvalidator(e)}></input>
+                    </div>
+                </div>
+
+
+
                 <div className="row">
                     <div className="col-md-6 col-lg-6" style={{textAlign: "right"}}>
                         <button type="button" className="btn btn-primary" onClick={this.submitAction} disabled={!this.canBeInvoked()}>Invoke</button>
@@ -111,8 +153,6 @@ export default class ExampleService extends React.Component {
     }
 
     renderComplete() {
-        const response = this.parseResponse();
-
         const AGITokenNetworks = '{"1":{"events":{},"links":{},"address":"0x8eb24319393716668d768dcec29356ae9cffe285","transactionHash":""},"3":{"events":{},"links":{},"address":"0xb97E9bBB6fd49865709d3F1576e8506ad640a13B","transactionHash":""},"42":{"events":{},"links":{},"address":"0x3b226ff6aad7851d3263e53cb7688d13a07f6e81","transactionHash":""}}'
         const AGITokenAbi = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"INITIAL_SUPPLY","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"unpause","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"paused","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_subtractedValue","type":"uint256"}],"name":"decreaseApproval","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"pause","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"beneficiary","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferTokens","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_addedValue","type":"uint256"}],"name":"increaseApproval","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"burner","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Burn","type":"event"},{"anonymous":false,"inputs":[],"name":"Pause","type":"event"},{"anonymous":false,"inputs":[],"name":"Unpause","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"previousOwner","type":"address"},{"indexed":true,"name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"}]
 
@@ -342,8 +382,6 @@ export default class ExampleService extends React.Component {
             })
             .catch(console.error);
 
-
-
         let _serviceSpecJSON = undefined;
 
         function composeSHA3Message(types,values) {
@@ -409,61 +447,45 @@ export default class ExampleService extends React.Component {
             }
         }
 
-        fetchServiceSpec();
-        handleJobInvocation("Calculator", "add", {"a": 44, "b": 60});
+        let timer;
+        let waiting_response = true;
+        function check_response(t){
+            console.log(waiting_response);
+            if(!waiting_response){
+                if(timer){
+                    clearTimeout(timer);
+                }
+                t.renderForm();
+            }
+        }
+        if(this.state.calls_num === 0) {
+            this.state.calls_num++;
+            fetchServiceSpec();
+            console.log("STATE:", this.state);
+            handleJobInvocation(this, "Calculator", this.state.methodName,
+                {
+                    "a": this.state.a,
+                    "b": this.state.b
+                }
+            );
 
-        function handleJobInvocation2(serviceName, methodName, requestObject) {
-            let channelId = 2093;
-            let nonce = 0;
-            let amount_spent = 12;
-
-            let endpointgetter = "https://bh.singularitynet.io:7052";
-
-            var msg = composeSHA3Message(["address", "uint256", "uint256", "uint256"],
-                ["0x7e6366fbe3bdfce3c906667911fc5237cc96bd08" , channelId, nonce, amount_spent]);
-
-            window.ethjs.personal_sign(msg, "0xa6e06cf37110930d2906e6ae70ba6224eded917b")
-                .then((signed) => {
-                    var stripped = signed.substring(2, signed.length);
-                    var byteSig = Buffer.from(stripped, 'hex');
-                    let buff = new Buffer(byteSig);
-                    let base64data = buff.toString('base64');
-
-                    const requestHeaders = {
-                        "snet-payment-type": "escrow",
-                        "snet-payment-channel-id": channelId,
-                        "snet-payment-channel-nonce": nonce,
-                        "snet-payment-channel-amount": amount_spent,
-                        "snet-payment-channel-signature-bin": base64data
-                    };
-
-                    console.log("Headers " + JSON.stringify(requestHeaders));
-                    const packageName = "example_service";
-                    console.log("Invoking service with package " + packageName + " serviceName " + serviceName + " methodName " + methodName + " endpoint " + endpointgetter);
-
-                    const Service = _serviceSpecJSON.lookup(serviceName);
-                    console.log("Service:", Service);
-                    makeGRPCCall(Service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject);
-
-                    return window.ethjs.personal_ecRecover(msg, signed);
-                });
+            if (waiting_response) {
+                timer = setTimeout(function(){
+                    check_response(this);
+                }, 1000);
+            }
         }
 
-        function handleJobInvocation(serviceName, methodName, requestObject) {
-            let channelId = 2093;
+        function handleJobInvocation(t, serviceName, methodName, requestObject) {
             let endpointgetter = "https://bh.singularitynet.io:7052";
-            var msg = composeSHA3Message(["uint256"],[channelId]);
-            console.log("*====================================");
-            window.ethjs.personal_sign(msg, "0xa6e06cf37110930d2906e6ae70ba6224eded917b")
-                .then((signed) => {
-                    let requestObject_channelState = { "channel_id": channelId, "signature": signed };
-                    const Service = _serviceSpecJSON.lookup("PaymentChannelStateService");
-                    console.log("=====================================");
-                    makeGRPCCall2(Service, endpointgetter, "escrow", "PaymentChannelStateService", "GetChannelState", requestObject_channelState);
-                });
 
             var msg = composeSHA3Message(["address", "uint256", "uint256", "uint256"],
-                ["0x7e6366fbe3bdfce3c906667911fc5237cc96bd08" , channelId, 0, 9]);
+                [
+                    "0x7e6366fbe3bdfce3c906667911fc5237cc96bd08" ,
+                    parseInt(t.state.channel_id),
+                    parseInt(t.state.nonce),
+                    parseInt(t.state.spent_amount)
+                ]);
 
             window.ethjs.personal_sign(msg, "0xa6e06cf37110930d2906e6ae70ba6224eded917b")
                 .then((signed) => {
@@ -474,9 +496,9 @@ export default class ExampleService extends React.Component {
 
                     const requestHeaders = {
                         "snet-payment-type": "escrow",
-                        "snet-payment-channel-id": channelId,
-                        "snet-payment-channel-nonce": 0,
-                        "snet-payment-channel-amount": 9,
+                        "snet-payment-channel-id": parseInt(t.state.channel_id),
+                        "snet-payment-channel-nonce": parseInt(t.state.nonce),
+                        "snet-payment-channel-amount": parseInt(t.state.spent_amount),
                         "snet-payment-channel-signature-bin": base64data
                     };
 
@@ -485,8 +507,7 @@ export default class ExampleService extends React.Component {
                     console.log("Invoking service with package " + packageName + " serviceName " + serviceName + " methodName " + methodName + " endpoint " + endpointgetter);
 
                     const Service = _serviceSpecJSON.lookup(serviceName);
-                    console.log("Service:", Service);
-                    makeGRPCCall(Service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject);
+                    makeGRPCCall(t, Service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject);
 
                     return window.ethjs.personal_ecRecover(msg, signed);
                 });
@@ -498,34 +519,19 @@ export default class ExampleService extends React.Component {
             return serviceObject[methodName](requestObject);
         }
 
-        function makeGRPCCall(service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject) {
+        function makeGRPCCall(t, service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject) {
             const serviceObject = service.create(rpcImpl(endpointgetter, packageName, serviceName, methodName, requestHeaders), false, false)
             console.log("serviceObject:", serviceObject);
             grpcRequest(serviceObject, methodName, requestObject)
                 .then(response => {
-                    console.log("Got a GRPC response " + JSON.stringify(response))
+                    console.log("Got a GRPC response " + JSON.stringify(response));
+                    t.state.spent_amount++;
+                    waiting_response = false;
                 })
                 .catch((err) => {
                     console.log("GRPC call failed with error " + JSON.stringify(err));
                 })
         }
-
-        function makeGRPCCall2(service, endpointgetter, packageName, serviceName, methodName, requestObject) {
-            const serviceObject = service.create(rpcImpl(endpointgetter, packageName, serviceName, methodName), false, false)
-            grpcRequest(serviceObject, methodName, requestObject)
-                .then(response => {
-                    console.log("Got a GRPC response " + JSON.stringify(response))
-                })
-                .catch((err) => {
-                    console.log("GRPC call failed with error " + JSON.stringify(err));
-                })
-        }
-
-        return (
-            <React.Fragment>
-                <p style={{fontSize: "13px"}}>Response from service is {response} </p>
-            </React.Fragment>
-        );
     }
 
     render() {
@@ -533,6 +539,7 @@ export default class ExampleService extends React.Component {
             return (
                 <div>
                     {this.renderComplete()}
+                    {this.renderForm()}
                 </div>
             );
         else {

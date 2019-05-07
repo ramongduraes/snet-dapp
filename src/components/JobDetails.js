@@ -322,8 +322,7 @@ export class Jobdetails extends React.Component {
             endpointgetter = "http://" + endpointgetter;
           }
 
-          const Service = this.serviceSpecJSON.lookup(serviceName)
-          console.log("Service:", Service);
+          const Service = this.serviceSpecJSON.lookup(serviceName);
           this.makeGRPCCall(Service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject)
 
           return window.ethjs.personal_ecRecover(msg, signed);
@@ -331,7 +330,7 @@ export class Jobdetails extends React.Component {
     }
 
     makeGRPCCall(service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject) {
-      const serviceObject = service.create(rpcImpl(endpointgetter, packageName, serviceName, methodName, requestHeaders), false, false)
+      const serviceObject = service.create(rpcImpl(endpointgetter, packageName, serviceName, methodName, requestHeaders), false, false);
       grpcRequest(serviceObject, methodName, requestObject)
         .then(response => {
           console.log("Got a GRPC response " + JSON.stringify(response))
