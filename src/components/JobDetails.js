@@ -238,6 +238,9 @@ export class Jobdetails extends React.Component {
       }
 
       // An ugly way to "pass" these data to the Service's Component
+      window.user_address = this.props.userAddress;
+      window.recipient = this.channelHelper.getRecipient();
+      window.group_id = this.channelHelper.getGroupId();
       window.channel_id = parseInt(selectedChannel["channelId"]);
       window.nonce = parseInt(selectedChannel["nonce"]);
       window.spent_amount = parseInt(this.channelHelper.getCurrentSignedAmount());

@@ -12,32 +12,22 @@ export default class ExampleService extends React.Component {
         this.handleFormUpdate = this.handleFormUpdate.bind(this);
         this.renderComplete = this.renderComplete.bind(this);
 
-
-        this.get_account = this.get_account.bind(this);
         this.handleJobInvocation = this.handleJobInvocation.bind(this);
         this.makeGRPCCall = this.makeGRPCCall.bind(this);
         this.setServiceSpec = this.setServiceSpec.bind(this);
         this.fetchServiceSpec = this.fetchServiceSpec.bind(this);
 
         this.state = {
-            payment_address: "0x501e8c58E6C16081c0AbCf80Ce2ABb6b3f91E717",
-            group_id: "0GwlhBaY9ke6gbX3e7CW6G/jKu9jmr5iGtKqpwZP4U4=",
-            price_in_cogs: 1,
-
             serviceName: "Calculator",
             methodName: "Select a method",
             a: 0,
             b: 0,
-            channel_id: 0,
-            spent_amount: 0,
-            nonce: 0,
             response: undefined,
             balance: 0
         };
 
         this.serviceSpecJSON = undefined;
 
-        this.get_account();
         this.fetchServiceSpec();
     }
 
@@ -70,15 +60,6 @@ export default class ExampleService extends React.Component {
         const serviceNameOptions = ["Select a method", ...serviceMethodNames];
         return serviceNameOptions.map((serviceMethodName, index) => {
           return <option key={index}>{serviceMethodName}</option>;
-        });
-    }
-
-    get_account() {
-        window.web3.eth.getAccounts(function (err, accounts) {
-            if(accounts[0]) {
-                window.user_account = accounts[0];
-                return accounts[0];
-            }
         });
     }
 
@@ -180,7 +161,7 @@ export default class ExampleService extends React.Component {
                 window.spent_amount + window.price
             ]);
 
-        window.ethjs.personal_sign(msg, window.user_account)
+        window.ethjs.personal_sign(msg, window.user_address)
             .then((signed) => {
                 var stripped = signed.substring(2, signed.length);
                 var byteSig = Buffer.from(stripped, 'hex');
