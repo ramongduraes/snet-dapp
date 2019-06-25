@@ -67,3 +67,6 @@ typings/
 .next
 /.idea/
 src/networks.js
+
+# yarn
+yarn.lock

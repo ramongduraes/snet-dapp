@@ -10,7 +10,7 @@ export const NETWORKS = {
       name: "Ropsten Test Network",
       etherscan: 'https://ropsten.etherscan.io',
       infura: 'https://ropsten.infura.io',
-      marketplace:'https://1qr45jt71g.execute-api.us-east-1.amazonaws.com/ropsten/',
+      marketplace:'https://2kdmghhbyk.execute-api.us-east-1.amazonaws.com/ropsten/',
       protobufjs:'https://protojs.singularitynet.io/ropsten/',
       default:true
     }, 
@@ -25,7 +25,7 @@ export const NETWORKS = {
       name: "Kovan Test Network",
       etherscan: 'https://kovan.etherscan.io',
       infura: 'https:/kovan.infura.io',
-      marketplace:'https://260r82zgt7.execute-api.us-east-1.amazonaws.com/kovan/',
+      marketplace:'https://2kdmghhbyk.execute-api.us-east-1.amazonaws.com/kovan/',
       protobufjs:'https://protojs.singularitynet.io/kovan/'
     },
   };
