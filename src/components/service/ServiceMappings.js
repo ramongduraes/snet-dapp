@@ -41,6 +41,7 @@ import Places365SceneRecognition from "./Places365SceneRecognition";
 import SuperResolution from "./SuperResolution";
 import SemanticSegmentationAerial from "./SemanticSegmentationAerial";
 import SiggraphColorization from "./SiggraphColorization";
+import PAIPR from "./PAIPR";
 
 import DefaultService from './DefaultService.js';
 
@@ -91,6 +92,7 @@ export default class SampleServices {
         this.serviceOrgIDToComponent[this.generateUniqueID("snet", "super-resolution", defaultChainId)] = SuperResolution;
         this.serviceOrgIDToComponent[this.generateUniqueID("snet", "semantic-segmentation-aerial", defaultChainId)] = SemanticSegmentationAerial;
         this.serviceOrgIDToComponent[this.generateUniqueID("snet", "siggraph-colorization", defaultChainId)] = SiggraphColorization;
+        this.serviceOrgIDToComponent[this.generateUniqueID("snet", "paipr", defaultChainId)] = PAIPR;
     }
 
     generateUniqueID(orgId, serviceId, chainId) {

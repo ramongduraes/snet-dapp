@@ -841,7 +841,7 @@ export class Jobdetails extends React.Component {
                                     <p className="job-details-error-text">Error: {this.state.grpcResponse}</p>
                                   </div> :
                                   <React.Fragment>
-                                    <CallComponent isComplete={valueTab === 2} serviceSpec={this.serviceSpecJSON} callApiCallback={this.handleJobInvocation} response={this.state.grpcResponse} sliderWidth={this.state.sliderWidth} protoSpec={this.protoSpec} />
+                                    <CallComponent isComplete={valueTab === 2} serviceSpec={this.serviceSpecJSON} callApiCallback={this.handleJobInvocation} response={this.state.grpcResponse} sliderWidth={this.state.sliderWidth} protoSpec={this.protoSpec} changeSliderWidth={this.onResizeJobDetailsSlider}/>
                                   </React.Fragment>
                               }
                               <div className="row">
