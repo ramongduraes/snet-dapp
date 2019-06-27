@@ -21,6 +21,7 @@ import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Slider from '@material-ui/lab/Slider';
+import Session from './service/paipr/Session';
 
 
 const minSliderWidth = '550px';
@@ -691,6 +692,7 @@ export class Jobdetails extends React.Component {
                               {valueTab === 0 &&
                               <TabContainer>
                                 <React.Fragment>
+                                  <Session/>
                                   <FormControlLabel
                                       control={
                                         <Switch

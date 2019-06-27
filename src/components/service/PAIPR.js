@@ -1,235 +1,319 @@
 import React from 'react';
-import {Root} from "protobufjs";
-import {grpcRequest, rpcImpl} from "../../grpc";
-import GRPCProtoV3Spec from "../../models/GRPCProtoV3Spec";
-
+import Button from '@material-ui/core/Button';
+import SNETImageUpload from "./standardComponents/SNETImageUpload";
+import {Grid, IconButton, MuiThemeProvider, Tooltip} from "@material-ui/core";
+import {blue} from "@material-ui/core/colors";
+import SvgIcon from "@material-ui/core/SvgIcon";
+import InfoIcon from "@material-ui/icons/Info";
+import {createMuiTheme} from '@material-ui/core/styles';
+import Typography from "@material-ui/core/Typography";
+import Paper from "@material-ui/core/Paper";
+import grey from "@material-ui/core/es/colors/grey";
+import red from "@material-ui/core/es/colors/red";
+import Switch from "@material-ui/core/Switch";
+import Slider from "@material-ui/lab/Slider";
+import HoverIcon from "./standardComponents/HoverIcon";
+import Session from "./paipr/Session";
 
 export default class PAIPR extends React.Component {
 
     constructor(props) {
         super(props);
-        this.changeSliderWidth();
-        this.submitAction = this.submitAction.bind(this);
-        this.handleFormUpdate = this.handleFormUpdate.bind(this);
-        this.renderComplete = this.renderComplete.bind(this);
 
-        this.handleJobInvocation = this.handleJobInvocation.bind(this);
-        this.makeGRPCCall = this.makeGRPCCall.bind(this);
-        this.setServiceSpec = this.setServiceSpec.bind(this);
-        this.fetchServiceSpec = this.fetchServiceSpec.bind(this);
-
-        this.state = {
-            serviceName: "Calculator",
-            methodName: "Select a method",
-            a: 0,
-            b: 0,
-            response: undefined,
-            balance: 0
+        this.initialState = {
+            // From .proto file
+            // Single option for both service and method names
+            serviceName: "PAIPR",
+            methodName: "exchange_messages",
+            // Actual input
+            data: "",
         };
 
-        this.serviceSpecJSON = undefined;
+        this.state = this.initialState;
 
-        this.fetchServiceSpec();
-    }
+        this.mainFont = "Muli";
+        this.mainFontSize = 14;
 
-    canBeInvoked() {
-        return (this.state.methodName !== "Select a method");
-    }
+        this.users_guide = "https://singnet.github.io/paipr/";
+        this.code_repo = "https://github.com/singnet/paipr";
 
-    handleFormUpdate(event) {
-        this.setState({
-            [event.target.name]: event.target.value
+        this.submitAction = this.submitAction.bind(this);
+        this.canBeInvoked = this.canBeInvoked.bind(this);
+
+        this.preserveColorSwitchChange = this.preserveColorSwitchChange.bind(this);
+        this.cropSwitchChange = this.cropSwitchChange.bind(this);
+        this.getContentImageData = this.getContentImageData.bind(this);
+        this.getStyleImageData = this.getStyleImageData.bind(this);
+        this.handleSliderChange = this.handleSliderChange.bind(this);
+
+        // Color Palette
+        this.theme = createMuiTheme({
+            palette: {
+                primary: blue,
+                secondary: grey,
+            },
+            typography: {
+                useNextVariants: true,
+            },
+            overrides: {
+                MuiIconButton: { // Name of the component ⚛️ / style sheet
+                    colorPrimary: blue[500],
+                    colorSecondary: grey[500],
+                },
+                MuiSvgIcon: {
+                    colorPrimary: red[500],
+                    colorSecondary: grey[500],
+                }
+            },
         });
     }
 
-    onKeyPressvalidator(event) {
-        const keyCode = event.keyCode || event.which;
-        if (!(keyCode == 8 || keyCode == 46) && (keyCode < 48 || keyCode > 57)) {
-            event.preventDefault()
-        } else {
-            let dots = event.target.value.split('.');
-            if (dots.length > 1 && keyCode == 46)
-                event.preventDefault()
-        }
+    //TODO
+    canBeInvoked() {
+        // Can be invoked if both content and style images have been chosen
+        return (this.state.content && this.state.style);
     }
 
     submitAction() {
-        this.renderComplete();
-    }
-
-    renderServiceMethodNames(serviceMethodNames) {
-        const serviceNameOptions = ["Select a method", ...serviceMethodNames];
-        return serviceNameOptions.map((serviceMethodName, index) => {
-          return <option key={index}>{serviceMethodName}</option>;
-        });
-    }
-
-    renderForm() {
-        const response = this.parseResponse();
-        const service = this.props.protoSpec.findServiceByName(this.state.serviceName);
-        const serviceMethodNames = service.methodNames;
-        return (
-            <React.Fragment>
-                <p style={{fontSize: "13px"}}>Response from service is {response} </p>
-                <div className="row">
-                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Method Name: </div>
-                    <div className="col-md-3 col-lg-3">
-                        <select name="methodName"
-                                value={this.state.methodName}
-                                style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
-                                onChange={this.handleFormUpdate}>
-                            {this.renderServiceMethodNames(serviceMethodNames)}
-                        </select>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Number 1: </div>
-                    <div className="col-md-3 col-lg-3">
-                        <input name="a" type="number"
-                               style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
-                               value={this.state.a} onChange={this.handleFormUpdate}
-                               onKeyPress={(e) => this.onKeyPressvalidator(e)}></input>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Number 2: </div>
-                    <div className="col-md-3 col-lg-3">
-                        <input name="b" type="number"
-                               style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
-                               value={this.state.b} onChange={this.handleFormUpdate}
-                               onKeyPress={(e) => this.onKeyPressvalidator(e)}></input>
-                    </div>
-                </div>
-
-                <div className="row">
-                    <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Remaining Calls: </div>
-                    <div className="col-md-3 col-lg-3">
-                        <input name="balance" type="number" readOnly
-                               style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
-                               value={this.state.balance}></input>
-                    </div>
-                </div>
-
-                <div className="row">
-                    <div className="col-md-6 col-lg-6" style={{textAlign: "right"}}>
-                        <button type="button" className="btn btn-primary" onClick={this.submitAction} disabled={!this.canBeInvoked()}>Invoke</button>
-                    </div>
-                </div>
-            </React.Fragment>
-        )
-    }
-
-    parseResponse() {
-        if(typeof this.state.response !== 'undefined') {
-            if(typeof this.state.response === 'string') {
-                return this.state.response;
-            }
-            return this.state.response.value;
-        }
-    }
-
-    setServiceSpec(serviceSpecJSON) {
-        this.serviceSpecJSON = serviceSpecJSON;
-    }
-
-    fetchServiceSpec() {
-        var caller = this;
-        let _urlservicebuf = "https://protojs.singularitynet.io/ropsten/" + "snet" + "/" + "example-service";
-        fetch(encodeURI(_urlservicebuf))
-            .then(serviceSpecResponse => serviceSpecResponse.json())
-            .then(serviceSpec => new Promise(function(resolve) {
-                const serviceSpecJSON = Root.fromJSON(serviceSpec[0]);
-                caller.setServiceSpec(serviceSpecJSON);
-                resolve();
-            }));
-    }
-
-    composeSHA3Message(types, values) {
-        var ethereumjsabi = require('ethereumjs-abi');
-        var sha3Message = ethereumjsabi.soliditySHA3(types, values);
-        var msg = "0x" + sha3Message.toString("hex");
-        return msg;
-    }
-
-    handleJobInvocation(serviceName, methodName, requestObject) {
-        let endpointgetter = "https://bh.singularitynet.io:7052";
-
-        var msg = this.composeSHA3Message(["address", "uint256", "uint256", "uint256"],
-            [
-                "0x7e6366fbe3bdfce3c906667911fc5237cc96bd08" ,
-                parseInt(window.channel_id),
-                parseInt(window.nonce),
-                window.spent_amount + window.price
-            ]);
-
-        window.ethjs.personal_sign(msg, window.user_address)
-            .then((signed) => {
-                var stripped = signed.substring(2, signed.length);
-                var byteSig = Buffer.from(stripped, 'hex');
-                let buff = new Buffer(byteSig);
-                let base64data = buff.toString('base64');
-
-                const requestHeaders = {
-                    "snet-payment-type": "escrow",
-                    "snet-payment-channel-id": parseInt(window.channel_id),
-                    "snet-payment-channel-nonce": parseInt(window.nonce),
-                    "snet-payment-channel-amount": window.spent_amount + window.price,
-                    "snet-payment-channel-signature-bin": base64data
-                };
-
-                console.log("Headers " + JSON.stringify(requestHeaders));
-                const packageName = "example_service";
-                console.log("Invoking service with package " + packageName + " serviceName " + serviceName + " methodName " + methodName + " endpoint " + endpointgetter);
-
-                const Service = this.serviceSpecJSON.lookup(serviceName);
-                this.makeGRPCCall(Service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject);
-
-                return window.ethjs.personal_ecRecover(msg, signed);
+        this.props.callApiCallback(
+            this.state.serviceName,
+            this.state.methodName,
+            {
+                content: this.state.content,
+                style: this.state.style,
+                contentSize: this.state.contentSize,
+                styleSize: this.state.styleSize,
+                preserveColor: this.state.preserveColor,
+                alpha: this.state.alpha,
+                crop: this.state.crop,
+                saveExt: this.state.saveExt,
             });
     }
 
-    makeGRPCCall(service, endpointgetter, packageName, serviceName, methodName, requestHeaders, requestObject) {
-        const serviceObject = service.create(rpcImpl(endpointgetter, packageName, serviceName, methodName, requestHeaders), false, false)
-        grpcRequest(serviceObject, methodName, requestObject)
-            .then(response => {
-                console.log("Got a GRPC response " + JSON.stringify(response));
-                window.spent_amount += window.price;
-                window.unspent_amount -= window.price;
-                this.setState(
-                    {
-                        response: response,
-                        balance: window.unspent_amount
-                    });
-            })
-            .catch((err) => {
-                console.log("GRPC call failed with error " + JSON.stringify(err));
-            })
+    getContentImageData(data) {
+        this.setState({content: data});
     }
 
-    renderComplete() {
-        console.log("STATE:", this.state);
-        this.handleJobInvocation(this.state.serviceName, this.state.methodName,
-            {
-                "a": this.state.a,
-                "b": this.state.b
+    getStyleImageData(data) {
+        this.setState({style: data});
+    }
+
+    preserveColorSwitchChange() {
+        this.setState({preserveColor: !this.state.preserveColor})
+    }
+
+    cropSwitchChange() {
+        this.setState({crop: !this.state.crop})
+    }
+
+    handleSliderChange(event, value) {
+        this.setState({alpha: value})
+    }
+
+    renderSession() {
+
+        return (
+            <Session/>
+        )
+    }
+
+// <React.Fragment>
+// <Grid item xs={12} container justify="space-around" style={{paddingTop: 12}}>
+// <Grid item xs={6} justify="center" container direction="column" alignItems="center">
+// <Grid item>
+// <Tooltip
+// title={
+//     <Typography
+//         style={{fontFamily: this.mainFont, fontSize: this.mainFontSize, color: "white"}}>
+//         Preserve content image's original colors.
+//     </Typography>
+// }
+// >
+// <Switch
+// checked={preserveColor}
+// onChange={this.preserveColorSwitchChange}
+// value={preserveColor}
+// color="primary"
+// />
+// </Tooltip>
+// </Grid>
+// <Grid item>
+// <Typography
+// style={{
+//     fontFamily: this.mainFont,
+//     fontSize: this.mainFontSize,
+// }}
+// >
+// Preserve Color
+// </Typography>
+// </Grid>
+// </Grid>
+// <Grid item xs={6} justify="center" container direction="column" alignItems="center">
+// <Grid item>
+// <Tooltip
+// title={
+//     <Typography
+//         style={{fontFamily: this.mainFont, fontSize: this.mainFontSize, color: "white"}}>
+//         Use only the central square crop of the image.
+//     </Typography>
+// }>
+// <Switch
+// checked={crop}
+// onChange={this.cropSwitchChange}
+// value={crop}
+// color="primary"
+// />
+// </Tooltip>
+// </Grid>
+// <Grid item>
+// <Typography
+// style={{
+//     fontFamily: this.mainFont,
+//     fontSize: this.mainFontSize,
+// }}
+// >
+// Crop
+// </Typography>
+// </Grid>
+// </Grid>
+// </Grid>
+// <Grid item xs={12} container direction="column" spacing={8} style={{paddingTop: 16}}>
+// <Grid item xs={12} container justify="center">
+// <Tooltip
+// title={
+//     <Typography
+//         style={{fontFamily: this.mainFont, fontSize: this.mainFontSize, color: "white"}}
+//         id="slider_label">
+//         {
+//             Math.round(alpha * 100) /100 // Rounds to 2 decimals
+//         }
+//     </Typography>
+// }
+// >
+// <Slider
+// style={{width: "80%"}}
+// value={alpha}
+// min={0.0}
+// max={1.0}
+// step={0.01}
+// onChange={this.handleSliderChange}
+// />
+// </Tooltip>
+// </Grid>
+// <Grid item xs={12} container justify="center">
+// <Typography
+// style={{
+//     fontFamily: this.mainFont,
+//     fontSize: this.mainFontSize,
+// }}
+// >
+// Content-style trade-off
+// </Typography>
+// </Grid>
+// </Grid>
+// <Grid item container justify="center" style={{paddingTop: 16}}>
+// <Grid item>
+// <Button variant="contained"
+// size="medium"
+// color="primary"
+// style={{fontSize: "13px", marginLeft: "10px"}}
+// onClick={this.submitAction}
+// disabled={!this.canBeInvoked()}
+// >
+// Invoke
+// </Button>
+// </Grid>
+// </Grid>
+// </React.Fragment>
+
+    parseResponse() {
+        const { response, isComplete } = this.props;
+        if(isComplete){
+            if(typeof response !== 'undefined') {
+                if(typeof response === 'string') {
+                    return response;
+                }
+                return response.data;
+            } else {
+                return null;
             }
-        );
+        } else {
+            return null;
+        }
     }
 
     render() {
-        if (this.props.isComplete)
-            return (
-                <div>
-                    {this.renderComplete()}
-                    {this.renderForm()}
-                </div>
-            );
-        else {
-            return (
-                <div>
-                    {this.renderForm()}
-                </div>
-            )
-        }
+        return (
+            <div style={{flexGrow: 1}}>
+                <Paper style={{
+                    padding: 8 * 2,
+                    margin: 'auto',
+                    width: "100%",
+                    maxWidth: 550,
+                }}>
+                    <MuiThemeProvider theme={this.theme}>
+                        <Grid container spacing={8} justify="center" alignItems="center">
+                            <Grid item xs={12} container alignItems="center" justify="space-between">
+                                <Grid item>
+                                    <Typography
+                                        style={{
+                                            fontFamily: this.mainFont,
+                                            fontSize: this.mainFontSize * 4 / 3,
+                                        }}
+                                    >
+                                        PAIPR
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs container justify="flex-end">
+                                    <Grid item>
+                                        <HoverIcon text="View code on Github" href={this.code_repo}>
+                                            <SvgIcon>
+                                                <path // Github Icon
+                                                    d="M12.007 0C6.12 0 1.1 4.27.157 10.08c-.944 5.813 2.468 11.45 8.054 13.312.19.064.397.033.555-.084.16-.117.25-.304.244-.5v-2.042c-3.33.735-4.037-1.56-4.037-1.56-.22-.726-.694-1.35-1.334-1.756-1.096-.75.074-.735.074-.735.773.103 1.454.557 1.846 1.23.694 1.21 2.23 1.638 3.45.96.056-.61.327-1.178.766-1.605-2.67-.3-5.462-1.335-5.462-6.002-.02-1.193.42-2.35 1.23-3.226-.327-1.015-.27-2.116.166-3.09 0 0 1.006-.33 3.3 1.23 1.966-.538 4.04-.538 6.003 0 2.295-1.5 3.3-1.23 3.3-1.23.445 1.006.49 2.144.12 3.18.81.877 1.25 2.033 1.23 3.226 0 4.607-2.805 5.627-5.476 5.927.578.583.88 1.386.825 2.206v3.29c-.005.2.092.393.26.507.164.115.377.14.565.063 5.568-1.88 8.956-7.514 8.007-13.313C22.892 4.267 17.884.007 12.008 0z"/>
+                                            </SvgIcon>
+                                        </HoverIcon>
+                                    </Grid>
+                                    <Grid item>
+                                        <HoverIcon text="User's guide" href={this.users_guide}>
+                                            <InfoIcon/>
+                                        </HoverIcon>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid item xs={12} container justify="center">
+                                <SNETImageUpload
+                                    style={{align: "center"}}
+                                    maxImageSize={3000000}
+                                    maxImageWidth={2400}
+                                    maxImageHeight={1800}
+                                    imageDataFunc={this.getContentImageData}
+                                    imageName="Input"
+                                    outputImage={this.parseResponse()}
+                                    outputImageName="stylizedImage"
+                                    width="90%"
+                                    instantUrlFetch={true}
+                                    allowURL={true}
+                                />
+                            </Grid>
+                            <Grid item xs={12} container justify="center">
+                                <SNETImageUpload
+                                    imageDataFunc={this.getStyleImageData}
+                                    imageName="Style"
+                                    maxImageSize={3000000}
+                                    maxImageWidth={2400}
+                                    maxImageHeight={1800}
+                                    disableResetButton={this.props.isComplete}
+                                    width="90%"
+                                    instantUrlFetch={true}
+                                    allowURL={true}
+                                    imageGallery={this.styleGallery}
+                                />
+                            </Grid>
+                            { !this.props.isComplete && this.renderSession() }
+                        </Grid>
+                    </MuiThemeProvider>
+                </Paper>
+            </div>
+        );
     }
 }
