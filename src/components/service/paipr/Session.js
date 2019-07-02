@@ -17,17 +17,25 @@ import SvgIcon from "@material-ui/core/SvgIcon";
 import {blue} from "@material-ui/core/colors";
 import grey from "@material-ui/core/es/colors/grey";
 import red from "@material-ui/core/es/colors/red";
+import PropTypes from "prop-types";
 
 export default class Session extends React.Component {
     constructor(props) {
         super(props);
+
+        console.log('From Session constructor');
+        console.log(this.props);
+
         this.state = {
             signIn: true,
+            type: 'singin',
             username: '',
             name:'',
         };
 
         this.switchMode = this.switchMode.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleTextChange = this.handleTextChange.bind(this);
 
         this.mainFont = "Muli";
         this.mainFontSize = 14;
@@ -59,11 +67,27 @@ export default class Session extends React.Component {
     }
 
     switchMode() {
-        let {signIn} = this.state;
+        let {signIn, type} = this.state;
         this.setState({
             signIn: !signIn,
+            type: type==='singin'?'signup':'signin'
         })
     };
+
+    handleTextChange(event) {
+        console.log(event.target.value);
+        this.setState({[event.target.name]: event.target.value});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        console.log('Clicked Submit');
+        console.log(this.state);
+        console.log(this.props);
+
+        let {type, username, name} = this.state;
+        this.props.sessionData(type, username, name);
+    }
 
     render() {
 
@@ -132,7 +156,10 @@ export default class Session extends React.Component {
                                         </div>
                                     </Grid>
                                     <Grid item xs={12} container justify="center">
-                                        <form noValidate style={{
+                                        <form
+                                            noValidate
+                                            onSubmit={this.handleSubmit}
+                                            style={{
                                             width: '100%', // Fix IE 11 issue.
                                             marginTop: 1,
                                         }}>
@@ -143,9 +170,11 @@ export default class Session extends React.Component {
                                                 fullWidth
                                                 id="email"
                                                 label="Username"
-                                                name="email"
-                                                autoComplete="email"
+                                                name="username"
+                                                autoComplete="username"
                                                 autoFocus
+                                                value={this.state.username}
+                                                onChange={this.handleTextChange}
                                             />
                                             {/*<TextField*/}
                                             {/*    variant="outlined"*/}
@@ -241,7 +270,7 @@ export default class Session extends React.Component {
                                     <Grid item xs={12} container justify="center">
                                         <form
                                             noValidate
-                                            onSubmit={this.submitCredentials()}
+                                            onSubmit={this.handleSubmit}
                                             style={{
                                             width: '100%', // Fix IE 11 issue.
                                             marginTop: 1,
@@ -253,9 +282,11 @@ export default class Session extends React.Component {
                                                 fullWidth
                                                 id="username"
                                                 label="Username"
-                                                name="email"
-                                                // autoComplete="email"
+                                                name="username"
+                                                autoComplete="username"
+                                                value={this.state.username}
                                                 autoFocus
+                                                onChange={this.handleTextChange}
                                             />
                                             <TextField
                                                 variant="outlined"
@@ -265,7 +296,9 @@ export default class Session extends React.Component {
                                                 name="name"
                                                 label="Name"
                                                 // type="password"
-                                                id="password"
+                                                id="name"
+                                                value={this.state.name}
+                                                onChange={this.handleTextChange}
                                                 // autoComplete="current-password"
                                             />
                                             {/*<FormControlLabel*/}
@@ -332,155 +365,9 @@ export default class Session extends React.Component {
     }
 }
 
-{/*<React.Fragment>*/
-}
-{/*    <Typography component="h1" variant="h5">*/
-}
-{/*        Sign up*/
-}
-{/*    </Typography>*/
-}
-{/*    <form className={classes.form} noValidate>*/
-}
-{/*        <Grid container spacing={2}>*/
-}
-{/*            <Grid item xs={12} sm={6}>*/
-}
-{/*                <TextField*/
-}
-{/*                    autoComplete="fname"*/
-}
-{/*                    name="firstName"*/
-}
-{/*                    variant="outlined"*/
-}
-{/*                    required*/
-}
-{/*                    fullWidth*/
-}
-{/*                    id="firstName"*/
-}
-{/*                    label="First Name"*/
-}
-{/*                    autoFocus*/
-}
-{/*                />*/
-}
-{/*            </Grid>*/
-}
-{/*            <Grid item xs={12} sm={6}>*/
-}
-{/*                <TextField*/
-}
-{/*                    variant="outlined"*/
-}
-{/*                    required*/
-}
-{/*                    fullWidth*/
-}
-{/*                    id="lastName"*/
-}
-{/*                    label="Last Name"*/
-}
-{/*                    name="lastName"*/
-}
-{/*                    autoComplete="lname"*/
-}
-{/*                />*/
-}
-{/*            </Grid>*/
-}
-{/*            <Grid item xs={12}>*/
-}
-{/*                <TextField*/
-}
-{/*                    variant="outlined"*/
-}
-{/*                    required*/
-}
-{/*                    fullWidth*/
-}
-{/*                    id="email"*/
-}
-{/*                    label="Email Address"*/
-}
-{/*                    name="email"*/
-}
-{/*                    autoComplete="email"*/
-}
-{/*                />*/
-}
-{/*            </Grid>*/
-}
-{/*            <Grid item xs={12}>*/
-}
-{/*                <TextField*/
-}
-{/*                    variant="outlined"*/
-}
-{/*                    required*/
-}
-{/*                    fullWidth*/
-}
-{/*                    name="password"*/
-}
-{/*                    label="Password"*/
-}
-{/*                    type="password"*/
-}
-{/*                    id="password"*/
-}
-{/*                    autoComplete="current-password"*/
-}
-{/*                />*/
-}
-{/*            </Grid>*/
-}
-{/*            <Grid item xs={12}>*/
-}
-{/*                <FormControlLabel*/
-}
-{/*                    control={<Checkbox value="allowExtraEmails" color="primary"/>}*/
-}
-{/*                    label="I want to receive inspiration, marketing promotions and updates via email."*/
-}
-{/*                />*/
-}
-{/*            </Grid>*/
-}
-{/*        </Grid>*/
-}
-{/*        <Button*/
-}
-{/*            type="submit"*/
-}
-{/*            fullWidth*/
-}
-{/*            variant="contained"*/
-}
-{/*            color="primary"*/
-}
-{/*        >*/
-}
-{/*            Sign Up*/
-}
-{/*        </Button>*/
-}
-{/*        <Grid container justify="flex-end">*/
-}
-{/*            <Grid item>*/
-}
-{/*                <Link href="#" variant="body2">*/
-}
-{/*                    Already have an account? Sign in*/
-}
-{/*                </Link>*/
-}
-{/*            </Grid>*/
-}
-{/*        </Grid>*/
-}
-{/*    </form>*/
-}
-{/*</React.Fragment>*/
-}
+
+Session.propTypes = {
+    sessionData: PropTypes.func.isRequired,
+};
+
+// Session.defaultProps = {};
