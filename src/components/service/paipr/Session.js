@@ -18,6 +18,13 @@ import {blue} from "@material-ui/core/colors";
 import grey from "@material-ui/core/es/colors/grey";
 import red from "@material-ui/core/es/colors/red";
 import PropTypes from "prop-types";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Input from "@material-ui/core/Input";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
 export default class Session extends React.Component {
     constructor(props) {
@@ -27,15 +34,24 @@ export default class Session extends React.Component {
         console.log(this.props);
 
         this.state = {
-            signIn: true,
-            type: 'singin',
+            type: 'signIn',
             username: '',
-            name:'',
+            realName: '',
+            email: '',
+            twitterID: '',
+            password: '',
+            passwordConfirmation: '',
+            showPassword: false,
         };
 
         this.switchMode = this.switchMode.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
+
+        this.usernameIsValid = this.usernameIsValid.bind(this);
+        this.emailIsValid = this.emailIsValid.bind(this);
+        this.passwordsMatch = this.passwordsMatch.bind(this);
+        this.handleClickShowPassword = this.handleClickShowPassword.bind(this);
 
         this.mainFont = "Muli";
         this.mainFontSize = 14;
@@ -67,16 +83,15 @@ export default class Session extends React.Component {
     }
 
     switchMode() {
-        let {signIn, type} = this.state;
+        let {type} = this.state;
         this.setState({
-            signIn: !signIn,
-            type: type==='singin'?'signup':'signin'
-        })
+            type: type === 'singIn' ? 'signUp' : 'signIn'
+        }, ()=>console.log(this.state))
     };
 
     handleTextChange(event) {
-        console.log(event.target.value);
-        this.setState({[event.target.name]: event.target.value});
+
+        this.setState({[event.target.name]: event.target.value}, () => console.log(this.state));
     }
 
     handleSubmit(event) {
@@ -87,6 +102,27 @@ export default class Session extends React.Component {
 
         let {type, username, name} = this.state;
         this.props.sessionData(type, username, name);
+    }
+
+    usernameIsValid() {
+        let usernameRE = /^[a-zA-Z0-9]+$/;
+        return (this.state.username.length > 0) && (usernameRE.test(this.state.username.toLowerCase()));
+    }
+
+    emailIsValid() {
+        let emailRE = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return emailRE.test(this.state.email.toLowerCase());
+    }
+
+    passwordsMatch() {
+        return (this.state.password.length > 0) && (this.state.password === this.state.passwordConfirmation)
+    }
+
+    handleClickShowPassword() {
+        let {showPassword} = this.state;
+        this.setState({
+            showPassword: !showPassword
+        });
     }
 
     render() {
@@ -129,7 +165,7 @@ export default class Session extends React.Component {
                                     </Grid>
                                 </Grid>
                             </Grid>
-                            {this.state.signIn ?
+                            {this.state.type === 'signIn' ?
                                 <React.Fragment>
                                     <Grid item xs={12} container justify="center">
                                         <CssBaseline/>
@@ -160,9 +196,9 @@ export default class Session extends React.Component {
                                             noValidate
                                             onSubmit={this.handleSubmit}
                                             style={{
-                                            width: '100%', // Fix IE 11 issue.
-                                            marginTop: 1,
-                                        }}>
+                                                width: '100%', // Fix IE 11 issue.
+                                                marginTop: 1,
+                                            }}>
                                             <TextField
                                                 variant="outlined"
                                                 margin="normal"
@@ -176,17 +212,30 @@ export default class Session extends React.Component {
                                                 value={this.state.username}
                                                 onChange={this.handleTextChange}
                                             />
-                                            {/*<TextField*/}
-                                            {/*    variant="outlined"*/}
-                                            {/*    margin="normal"*/}
-                                            {/*    required*/}
-                                            {/*    fullWidth*/}
-                                            {/*    name="password"*/}
-                                            {/*    label="Password"*/}
-                                            {/*    type="password"*/}
-                                            {/*    id="password"*/}
-                                            {/*    autoComplete="current-password"*/}
-                                            {/*/>*/}
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                name="password"
+                                                label="Password"
+                                                id="password"
+                                                autoComplete="current-password"
+                                                value={this.state.password}
+                                                onChange={this.handleTextChange}
+                                                variant="outlined"
+                                                type={this.state.showPassword ? 'text' : 'password'}
+                                                InputProps={{
+                                                    endAdornment : (
+                                                    <InputAdornment position="end">
+                                                    <IconButton aria-label="Toggle password visibility"
+                                                    onClick={this.handleClickShowPassword}>
+                                                    {this.state.showPassword ? <Visibility/> :
+                                                        <VisibilityOff/>}
+                                                    </IconButton>
+                                                    </InputAdornment>
+                                                    ),
+                                                }}
+                                            />
                                             {/*<FormControlLabel*/}
                                             {/*    control={<Checkbox value="remember" color="primary"/>}*/}
                                             {/*    label="Remember me"*/}
@@ -199,7 +248,8 @@ export default class Session extends React.Component {
                                                 variant="contained"
                                                 color="primary"
                                                 style={{textTransform: 'none',}}
-                                            >
+                                                disabled={!(this.usernameIsValid() && this.state.password.length > 0)}
+                                                >
                                                 <Typography
                                                     style={{
                                                         color: "white",
@@ -272,9 +322,9 @@ export default class Session extends React.Component {
                                             noValidate
                                             onSubmit={this.handleSubmit}
                                             style={{
-                                            width: '100%', // Fix IE 11 issue.
-                                            marginTop: 1,
-                                        }}>
+                                                width: '100%', // Fix IE 11 issue.
+                                                marginTop: 1,
+                                            }}>
                                             <TextField
                                                 variant="outlined"
                                                 margin="normal"
@@ -293,13 +343,80 @@ export default class Session extends React.Component {
                                                 margin="normal"
                                                 required
                                                 fullWidth
-                                                name="name"
-                                                label="Name"
-                                                // type="password"
-                                                id="name"
-                                                value={this.state.name}
+                                                name="realname"
+                                                label="Real Name"
+                                                id="realName"
+                                                value={this.state.realName}
                                                 onChange={this.handleTextChange}
-                                                // autoComplete="current-password"
+                                            />
+                                            <TextField
+                                                variant="outlined"
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                name="email"
+                                                label="Email"
+                                                id="email"
+                                                value={this.state.email}
+                                                onChange={this.handleTextChange}
+                                            />
+                                            <TextField
+                                                variant="outlined"
+                                                margin="normal"
+                                                fullWidth
+                                                name="twitter"
+                                                label="Twitter ID"
+                                                id="twitterID"
+                                                value={this.state.twitterID}
+                                                onChange={this.handleTextChange}
+                                            />
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                name="password"
+                                                label="Password"
+                                                id="password"
+                                                autoComplete="current-password"
+                                                value={this.state.password}
+                                                onChange={this.handleTextChange}
+                                                variant="outlined"
+                                                type={this.state.showPassword ? 'text' : 'password'}
+                                                InputProps={{
+                                                    endAdornment : (
+                                                        <InputAdornment position="end">
+                                                            <IconButton aria-label="Toggle password visibility"
+                                                                        onClick={this.handleClickShowPassword}>
+                                                                {this.state.showPassword ? <Visibility/> :
+                                                                    <VisibilityOff/>}
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                            />
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                name="passwordConfirmation"
+                                                label="Confirm your password"
+                                                id="passwordConfirmation"
+                                                autoComplete="current-password"
+                                                value={this.state.passwordConfirmation}
+                                                onChange={this.handleTextChange}
+                                                variant="outlined"
+                                                type={this.state.showPassword ? 'text' : 'password'}
+                                                InputProps={{
+                                                    endAdornment : (
+                                                        <InputAdornment position="end">
+                                                            <IconButton aria-label="Toggle password visibility"
+                                                                        onClick={this.handleClickShowPassword}>
+                                                                {this.state.showPassword ? <Visibility/> :
+                                                                    <VisibilityOff/>}
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
                                             />
                                             {/*<FormControlLabel*/}
                                             {/*    control={<Checkbox value="remember" color="primary"/>}*/}
@@ -312,6 +429,10 @@ export default class Session extends React.Component {
                                                 fullWidth
                                                 variant="contained"
                                                 color="primary"
+                                                disabled={!(this.usernameIsValid() &&
+                                                            this.emailIsValid() &&
+                                                            this.passwordsMatch())
+                                                }
                                                 style={{textTransform: 'none',}}
                                             >
                                                 <Typography

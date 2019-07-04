@@ -21,7 +21,6 @@ import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Slider from '@material-ui/lab/Slider';
-import Session from './service/paipr/Session';
 
 
 const minSliderWidth = '550px';
@@ -658,61 +657,60 @@ export class Jobdetails extends React.Component {
                           </div>
                         </div>
 
-                        <div className="col-xs-12 col-sm-12 col-md-12 jobcostpreview no-padding">
-                          <h3>Job Cost Preview</h3>
-                          <div className="col-xs-12 col-sm-12 col-md-12 no-padding">
-                            <div className="col-xs-6 col-sm-6 col-md-6 bg-light">Current Price</div>
-                            <div className="col-xs-6 col-sm-6 col-md-6 bg-lighter" > {this.serviceState["price_in_agi"]} AGI</div>
-                            <div className="col-xs-6 col-sm-6 col-md-6 bg-light">Price Model</div>
-                            <div className="col-xs-6 col-sm-6 col-md-6 bg-lighter">{this.serviceState["price_model"]}</div>
-                          </div>
-                        </div>
-                        <div className="col-xs-12 col-sm-12 col-md-12 text-center border-top1">
-                          {(this.state.runjobstate) ?
-                              <button type="button" className="btn-primary" onClick={() => this.startjob()}>Start Job</button>
-                              :
-                              <div className="job-details-unavailable">
-                                {(typeof web3 === 'undefined') ?
-                                    "Please install Metamask to invoke the API" :
-                                    "Service is currently unavailable. Please try later."
-                                }
-                              </div>
-                          }
+                      <div className="col-xs-12 col-sm-12 col-md-12 jobcostpreview no-padding">
+                        <h3>Job Cost Preview</h3>
+                        <div className="col-xs-12 col-sm-12 col-md-12 no-padding">
+                          <div className="col-xs-6 col-sm-6 col-md-6 bg-light">Current Price</div>
+                          <div className="col-xs-6 col-sm-6 col-md-6 bg-lighter" > {this.serviceState["price_in_agi"]} AGI</div>
+                          <div className="col-xs-6 col-sm-6 col-md-6 bg-light">Price Model</div>
+                          <div className="col-xs-6 col-sm-6 col-md-6 bg-lighter">{this.serviceState["price_model"]}</div>
                         </div>
                       </div>
-                      {(this.state.runjobstate) ?
-                          <div className="col-xs-12 col-sm-12 col-md-12 funds no-padding">
-                            <i className="up"></i>
-                            <div className="servicedetailstab">
-                              <Tabs value={valueTab} onChange={(event, valueTab) => this.handleChangeTabs(event, valueTab)} indicatorColor='primary'>
-                                <Tab disabled={(!this.state.fundTabEnabled) || valueTab !== 0} label={<span className="funds-title">Fund</span>} />
-                                <Tab disabled={(!this.state.fundTabEnabled || valueTab !== 1)} label={<span className="funds-title">Invoke</span>} />
-                                <Tab disabled={(!this.state.fundTabEnabled || valueTab !== 2)} label={<span className="funds-title">Result</span>} />
-                              </Tabs>
-                              {valueTab === 0 &&
-                              <TabContainer>
-                                <React.Fragment>
-                                  <Session/>
-                                  <FormControlLabel
-                                      control={
-                                        <Switch
-                                            checked={this.state.enableCustomFunding}
-                                            onChange={this.handleChangeCustomFunding}
-                                            disabled={!this.state.fundTabEnabled}
-                                            value="checkedA"
-                                            color="primary"
-                                        />
-                                      }
-                                      labelPlacement="start"
-                                      label={<h5>Custom funding options</h5>}
-                                      style={{ float: "right", marginRight: 0 }}
-                                  />
-                                  {
-                                    !this.state.enableCustomFunding ?
-                                        <div className={(this.state.fundTabEnabled) ? "row channels-sec" : "row channels-sec-disabled"}>
-                                          <div className="col-md-12 no-padding mtb-10">
-                                            <div className="col-xs-12 col-md-12 no-padding">
-                                              <div className="col-xs-4 col-sm-7 col-md-7 mtb-10 amt-label">No of Transactions:
+                      <div className="col-xs-12 col-sm-12 col-md-12 text-center border-top1">
+                        {(this.state.runjobstate) ?
+                          <button type="button" className="btn-primary" onClick={() => this.startjob()}>Start Job</button>
+                          :
+                          <div className="job-details-unavailable">
+                            {(typeof web3 === 'undefined') ?
+                              "Please install Metamask to invoke the API" :
+                              "Service is currently unavailable. Please try later."
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    {(this.state.runjobstate) ?
+                      <div className="col-xs-12 col-sm-12 col-md-12 funds no-padding">
+                        <i className="up"></i>
+                        <div className="servicedetailstab">
+                          <Tabs value={valueTab} onChange={(event, valueTab) => this.handleChangeTabs(event, valueTab)} indicatorColor='primary'>
+                            <Tab disabled={(!this.state.fundTabEnabled) || valueTab !== 0} label={<span className="funds-title">Fund</span>} />
+                            <Tab disabled={(!this.state.fundTabEnabled || valueTab !== 1)} label={<span className="funds-title">Invoke</span>} />
+                            <Tab disabled={(!this.state.fundTabEnabled || valueTab !== 2)} label={<span className="funds-title">Result</span>} />
+                          </Tabs>
+                          {valueTab === 0 &&
+                            <TabContainer>
+                              <React.Fragment>
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={this.state.enableCustomFunding}
+                                      onChange={this.handleChangeCustomFunding}
+                                      disabled={!this.state.fundTabEnabled}
+                                      value="checkedA"
+                                      color="primary"
+                                    />
+                                  }
+                                  labelPlacement="start"
+                                  label={<h5>Custom funding options</h5>}
+                                  style={{ float: "right", marginRight: 0 }}
+                                />
+                                {
+                                  !this.state.enableCustomFunding ?
+                                  <div className={(this.state.fundTabEnabled) ? "row channels-sec" : "row channels-sec-disabled"}>
+                                      <div className="col-md-12 no-padding mtb-10">
+                                        <div className="col-xs-12 col-md-12 no-padding">
+                                          <div className="col-xs-4 col-sm-7 col-md-7 mtb-10 amt-label">No of Transactions:
                                                 <Tooltip title={<span style={{ fontSize: "13px", lineHeight: "18px" }}>
                                               The required amoint of gas cost for the selected number of transaction will be automatically retrieved. Please not that gas costs per transaction is volatile and the number of transactions selected is an approximated value</span>} >
                                                   <i className="fa fa-info-circle info-icon" aria-hidden="true"></i>
