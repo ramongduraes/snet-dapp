@@ -1,6 +1,6 @@
 import React from 'react';
 import {blue} from "@material-ui/core/colors";
-import {createMuiTheme} from '@material-ui/core/styles';
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core/styles';
 import grey from "@material-ui/core/es/colors/grey";
 import red from "@material-ui/core/es/colors/red";
 import Session from "./paipr/Session";
@@ -9,7 +9,7 @@ import {Root} from "protobufjs";
 import {grpcRequest, rpcImpl} from "../../grpc";
 import GRPCProtoV3Spec from "../../models/GRPCProtoV3Spec";
 
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -22,11 +22,20 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
+import Paper from "@material-ui/core/Paper";
+import {Grid} from "@material-ui/core";
+import HoverIcon from "./standardComponents/HoverIcon";
+import InfoIcon from "@material-ui/icons/Info";
+import HelpIcon from "@material-ui/icons/Help";
+import SvgIcon from "@material-ui/core/SvgIcon";
+
+import logo from "./paipr/images/SingularityNET_Logotype-black.png";
 
 export default class PAIPR extends React.Component {
 
     constructor(props) {
         super(props);
+        this.props.changeSliderWidth();
 
         this.initialState = {
             // From .proto file
@@ -38,7 +47,7 @@ export default class PAIPR extends React.Component {
             data: "{\"message\":\"topics\"}",
 
             // Session
-            loggedIn: false,
+            loggedIn: true,
             sessionType: '',
             username: 'a',
             password: 'a',
@@ -67,10 +76,10 @@ export default class PAIPR extends React.Component {
 
         // Standard service methods
         // this.submitAction = this.submitAction.bind(this);
-        this.canBeInvoked = this.canBeInvoked.bind(this);
+        // this.canBeInvoked = this.canBeInvoked.bind(this);
 
         this.verifySessionCredentials = this.verifySessionCredentials.bind(this);
-        this.renderMainPage = this.renderMainPage.bind(this);
+        // this.renderMainPage = this.renderMainPage.bind(this);
 
         //TODO: pipeline functions
         // this.renderComplete = this.renderComplete.bind(this);
@@ -96,7 +105,13 @@ export default class PAIPR extends React.Component {
                 MuiSvgIcon: {
                     colorPrimary: red[500],
                     colorSecondary: grey[500],
-                }
+                },
+                MuiDrawer: {
+                    position: 'absolute',
+                    paper: {
+                        position: 'absolute',
+                    },
+                },
             },
         });
     }
@@ -104,19 +119,19 @@ export default class PAIPR extends React.Component {
     verifySessionCredentials(type, username, name) {
         // TODO : ACTUALLY VERIFY AND EITHER SEND FAILURE FLAG TO SESSION OR SUCCESS AND SWITCH TO MAIN PAGE
         this.setState({
-            type: type,
-            username: username,
-            name: name,
-            loggedIn:true,
-            data: "{\"message\":\"topics\"}"
+                type: type,
+                username: username,
+                name: name,
+                loggedIn: true,
+                data: "{\"message\":\"topics\"}"
             }, () => this.handleJobInvocation(this.state.serviceName, this.state.methodName,
-                {
-                    "data": this.state.data
-                }
+            {
+                "data": this.state.data
+            }
             )
         );
 
-        if (!this.state.changedSliderWidth){
+        if (!this.state.changedSliderWidth) {
             this.props.changeSliderWidth();
             this.setState({
                 changedSliderWidth: true,
@@ -125,11 +140,11 @@ export default class PAIPR extends React.Component {
 
     }
 
-    canBeInvoked() {
-        //TODO
-        // Can be invoked if both content and style images have been chosen
-        return (this.state.content && this.state.style);
-    }
+    // canBeInvoked() {
+    //     //TODO
+    //     // Can be invoked if both content and style images have been chosen
+    //     return (this.state.content && this.state.style);
+    // }
 
     // submitAction() {
     //     // TODO: Pipeline code
@@ -161,8 +176,8 @@ export default class PAIPR extends React.Component {
     // }
 
     parseResponse() {
-        if(typeof this.state.response !== 'undefined') {
-            if(typeof this.state.response === 'string') {
+        if (typeof this.state.response !== 'undefined') {
+            if (typeof this.state.response === 'string') {
                 return this.state.response;
             }
             return this.state.response.value;
@@ -301,242 +316,201 @@ export default class PAIPR extends React.Component {
     //     );
     // }
 
-    renderMainPage(){
-        const response = this.parseResponse();
-        const drawerWidth = 240;
-
-        // const useStyles = makeStyles(theme => ({
-            // drawerPaper: {
-            //     width: drawerWidth,
-            // },
-            // content: {
-            //     flexGrow: 1,
-            //     padding: theme.spacing(3),
-            // },
-            // toolbar: theme.mixins.toolbar,
-        // }));
-
-        // const classes = useStyles();
-
-        return (
-            <div style={{
-                display: 'flex',
-            }}>
-                <CssBaseline />
-                <AppBar position="fixed" style={{
-                    // zIndex: theme.zIndex.drawer + 1,
-                    zIndex: 1,
-                }}>
-                    <Toolbar>
-                        <Typography variant="h6" noWrap>
-                            Clipped drawer
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-                <Drawer
-                    style={{
-                        width: drawerWidth,
-                        flexShrink: 0,
-                    }}
-                    variant="permanent"
-                    classes={{
-                        paper: {
-                            width: drawerWidth,
-                        },
-                    }}
-                >
-                    <div
-                        // className={classes.toolbar}
-                    />
-                    <List>
-                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                            <ListItem button key={text}>
-                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Divider />
-                    <List>
-                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                            <ListItem button key={text}>
-                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Drawer>
-                <main style={{
-                    flexGrow: 1,
-                    // padding: theme.spacing(3),
-                    padding: 24,
-                }}>
-                    <div
-                        // className={classes.toolbar}
-                    />
-                    <React.Fragment>
-                        <p style={{fontSize: "13px"}}>Response from service is {response} </p>
-                        {
-                            // this.renderComplete()
-                            this.handleJobInvocation(this.state.serviceName, this.state.methodName,
-                                {
-                                    "data": this.state.data
-                                }
-                            )
-                        }
-                        <Session sessionData={this.verifySessionCredentials}/>
-                        <div className="row">
-                            <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Remaining Calls: </div>
-                            <div className="col-md-3 col-lg-3">
-                                <input name="balance" type="number" readOnly
-                                       style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
-                                       value={this.state.balance}/>
-                            </div>
-                        </div>
-                    </React.Fragment>
-                    <Typography paragraph>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                        ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-                        facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-                        gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-                        donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-                        adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-                        Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-                        imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-                        arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-                        donec massa sapien faucibus et molestie ac.
-                    </Typography>
-                    <Typography paragraph>
-                        Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-                        facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-                        tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-                        consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-                        vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-                        hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-                        tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-                        nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-                        accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-                    </Typography>
-                </main>
-            </div>
-        );
-    }
-
 
     render() {
         const response = this.parseResponse();
         const drawerWidth = 240;
+        const appBarHeight = 70;
+
         if (this.state.loggedIn
-            // this.props.isComplete
-        ){
+        // this.props.isComplete
+        ) {
             // this.renderMainPage();
-            return(
-                <div style={{
-                    display: 'flex',
-                    position:'relative',
-                }}>
-                    <CssBaseline />
-                    <AppBar position="fixed" style={{
-                        // zIndex: theme.zIndex.drawer + 1,
-                        zIndex: 2,
-                    }}>
-                        <Toolbar>
-                            <Typography variant="h6" noWrap>
-                                Clipped drawer
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
-                    <Drawer
-                        style={{
-                            width: drawerWidth,
-                            flexShrink: 0,
-                        }}
-                        variant="permanent"
-                        classes={{
-                            paper: {
-                                width: drawerWidth,
-                            },
-                        }}
-                    >
-                        <div
-                            // className={classes.toolbar}
-                        />
-                        <List>
-                            {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                                <ListItem button key={text}>
-                                    <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItem>
-                            ))}
-                        </List>
-                        <Divider />
-                        <List>
-                            {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                                <ListItem button key={text}>
-                                    <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Drawer>
-                    <main style={{
-                        flexGrow: 1,
-                        // padding: theme.spacing(3),
-                        padding: 24,
-                    }}>
-                        <div
-                            // className={classes.toolbar}
-                        />
-                        <React.Fragment>
-                            <p style={{fontSize: "13px"}}>Response from service is {response} </p>
-                            {
-                                // this.renderComplete()
-                                this.handleJobInvocation(this.state.serviceName, this.state.methodName,
-                                    {
-                                        "data": this.state.data
-                                    }
-                                )
-                            }
-                            <Session sessionData={this.verifySessionCredentials}/>
-                            <div className="row">
-                                <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Remaining Calls: </div>
-                                <div className="col-md-3 col-lg-3">
-                                    <input name="balance" type="number" readOnly
-                                           style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
-                                           value={this.state.balance}/>
-                                </div>
-                            </div>
-                        </React.Fragment>
-                        <Typography paragraph>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                            ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-                            facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-                            gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-                            donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-                            adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-                            Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-                            imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-                            arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-                            donec massa sapien faucibus et molestie ac.
-                        </Typography>
-                        <Typography paragraph>
-                            Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-                            facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-                            tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-                            consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-                            vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-                            hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-                            tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-                            nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-                            accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-                        </Typography>
-                    </main>
-                </div>
-            )
-        }
-        else {
             return (
-                <Session sessionData={this.verifySessionCredentials} />
+                <div
+                    style={{
+                        // display: 'flex',
+                        // position: 'fixed',
+                        // height: '500px',
+                        // width: '90%',
+                        backgroundColor: 'yellow',
+                        // flexGrow: 1,
+                    }}
+                >
+                    <Paper style={{
+                        padding: 8 * 2,
+                        margin: 'auto',
+                        width: "95%",
+                        minHeight:'300px',
+                        // maxWidth: 550,
+                        backgroundColor: 'green',
+                        position:'relative'
+                    }}>
+                        <MuiThemeProvider theme={this.theme}>
+                            <Grid container spacing={8} justify="center" alignItems="center">
+                                <CssBaseline/>
+                                <AppBar
+                                    position="absolute"
+                                    style={{
+                                        // zIndex: theme.zIndex.drawer + 1,
+                                        zIndex: 1201,
+                                        backgroundColor:'white',
+                                        height: appBarHeight,
+                                    }}>
+                                    <Toolbar>
+                                        <img
+                                            src={logo}
+                                            alt="SingularityNET logo"
+                                            style={{
+                                                maxWidth: drawerWidth,
+                                                padding: '8px',
+                                            }}
+                                        />
+                                        <Typography
+                                            variant="h4"
+                                            noWrap
+                                            style={{
+                                                color: "gray",
+                                                fontWeight: 'bold',
+                                                borderLeft: '1px solid #999',
+                                                padding: '0.5em',
+                                                flexGrow: 1,
+                                            }}
+                                        >
+                                            Personal AI Paper Recommender
+                                        </Typography>
+                                        <HoverIcon href={this.users_guide}>
+                                            <HelpIcon/>
+                                        </HoverIcon>
+                                    </Toolbar>
+                                </AppBar>
+                                <Drawer
+                                    style={{
+                                        width: drawerWidth,
+                                        flexShrink: 0,
+                                        // position: 'absolute !important',
+                                    }}
+                                    variant="permanent"
+                                >
+                                    <div
+                                        // className={classes.toolbar}
+                                    />
+                                    <List>
+                                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+                                            <ListItem button key={text}>
+                                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon/> :
+                                                    <MailIcon/>}</ListItemIcon>
+                                                <ListItemText primary={text}/>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                    <Divider/>
+                                    <List>
+                                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
+                                            <ListItem button key={text}>
+                                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon/> :
+                                                    <MailIcon/>}</ListItemIcon>
+                                                <ListItemText primary={text}/>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Drawer>
+                                <Grid item xs={12} container alignItems="center" justify="space-between">
+                                    <Grid item>
+                                        <Typography
+                                            style={{
+                                                fontFamily: this.mainFont,
+                                                fontSize: this.mainFontSize * 4 / 3,
+                                            }}
+                                        >
+                                            Style Transfer
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs container justify="flex-end">
+                                        <Grid item>
+                                            <HoverIcon text="View code on Github" href={this.code_repo}>
+                                                <SvgIcon>
+                                                    <path // Github Icon
+                                                        d="M12.007 0C6.12 0 1.1 4.27.157 10.08c-.944 5.813 2.468 11.45 8.054 13.312.19.064.397.033.555-.084.16-.117.25-.304.244-.5v-2.042c-3.33.735-4.037-1.56-4.037-1.56-.22-.726-.694-1.35-1.334-1.756-1.096-.75.074-.735.074-.735.773.103 1.454.557 1.846 1.23.694 1.21 2.23 1.638 3.45.96.056-.61.327-1.178.766-1.605-2.67-.3-5.462-1.335-5.462-6.002-.02-1.193.42-2.35 1.23-3.226-.327-1.015-.27-2.116.166-3.09 0 0 1.006-.33 3.3 1.23 1.966-.538 4.04-.538 6.003 0 2.295-1.5 3.3-1.23 3.3-1.23.445 1.006.49 2.144.12 3.18.81.877 1.25 2.033 1.23 3.226 0 4.607-2.805 5.627-5.476 5.927.578.583.88 1.386.825 2.206v3.29c-.005.2.092.393.26.507.164.115.377.14.565.063 5.568-1.88 8.956-7.514 8.007-13.313C22.892 4.267 17.884.007 12.008 0z"/>
+                                                </SvgIcon>
+                                            </HoverIcon>
+                                        </Grid>
+                                        <Grid item>
+                                            <HoverIcon text="User's guide" href={this.users_guide}>
+                                                <InfoIcon/>
+                                            </HoverIcon>
+                                        </Grid>
+                                        <Grid item>
+                                            <HoverIcon text="View original project" href={this.reference}>
+                                                <SvgIcon>
+                                                    <path
+                                                        d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm0 11.701c0 2.857-1.869 4.779-4.5 5.299l-.498-1.063c1.219-.459 2.001-1.822 2.001-2.929h-2.003v-5.008h5v3.701zm6 0c0 2.857-1.869 4.779-4.5 5.299l-.498-1.063c1.219-.459 2.001-1.822 2.001-2.929h-2.003v-5.008h5v3.701z"/>
+                                                </SvgIcon>
+                                            </HoverIcon>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                                {/*<Grid item xs={12} container justify="center"> </Grid>*/}
+                            </Grid>
+                        </MuiThemeProvider>
+                    </Paper>
+                </div>
+
+                // <main style={{
+                //     flexGrow: 1,
+                //     // padding: theme.spacing(3),
+                //     padding: 24,
+                // }}>
+                //     <div
+                //         // className={classes.toolbar}
+                //     />
+                //     <React.Fragment>
+                //         <p style={{fontSize: "13px"}}>Response from service is {response} </p>
+                //         {
+                //             // this.renderComplete()
+                //             this.handleJobInvocation(this.state.serviceName, this.state.methodName,
+                //                 {
+                //                     "data": this.state.data
+                //                 }
+                //             )
+                //         }
+                //         <div className="row">
+                //             <div className="col-md-3 col-lg-3" style={{padding: "10px", fontSize: "13px", marginLeft: "10px"}}>Remaining Calls: </div>
+                //             <div className="col-md-3 col-lg-3">
+                //                 <input name="balance" type="number" readOnly
+                //                        style={{height: "30px", width: "250px", fontSize: "13px", marginBottom: "5px"}}
+                //                        value={this.state.balance}/>
+                //             </div>
+                //         </div>
+                //     </React.Fragment>
+                //     <Typography paragraph>
+                //         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                //         ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
+                //         facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
+                //         gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
+                //         donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                //         adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
+                //         Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
+                //         imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
+                //         arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
+                //         donec massa sapien faucibus et molestie ac.
+                //     </Typography>
+                //     <Typography paragraph>
+                //         Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
+                //         facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
+                //         tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
+                //         consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
+                //         vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
+                //         hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
+                //         tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
+                //         nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
+                //         accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
+                //     </Typography>
+                // </main>
+            )
+        } else {
+            return (
+                <Session sessionData={this.verifySessionCredentials}/>
             );
         }
     }
