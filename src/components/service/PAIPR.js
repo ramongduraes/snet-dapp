@@ -27,9 +27,18 @@ import {Grid} from "@material-ui/core";
 import HoverIcon from "./standardComponents/HoverIcon";
 import InfoIcon from "@material-ui/icons/Info";
 import HelpIcon from "@material-ui/icons/Help";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import RssFeedIcon from "@material-ui/icons/RssFeed";
+import BookmarkIcon from "@material-ui/icons/Bookmark";
+import SettingsIcon from "@material-ui/icons/Settings";
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SvgIcon from "@material-ui/core/SvgIcon";
 
+
 import logo from "./paipr/images/SingularityNET_Logotype-black.png";
+import Button from "@material-ui/core/Button";
+import Collapse from "@material-ui/core/Collapse";
 
 export default class PAIPR extends React.Component {
 
@@ -56,6 +65,7 @@ export default class PAIPR extends React.Component {
 
             // Slider width
             changedSliderWidth: false,
+            myFeedsOpen: true,
 
             // TODO: Pipeline variables
             response: undefined,
@@ -87,6 +97,7 @@ export default class PAIPR extends React.Component {
         this.makeGRPCCall = this.makeGRPCCall.bind(this);
         this.setServiceSpec = this.setServiceSpec.bind(this);
         this.fetchServiceSpec = this.fetchServiceSpec.bind(this);
+        this.handleMyFeedsClick = this.handleMyFeedsClick.bind(this);
 
         // Color Palette
         this.theme = createMuiTheme({
@@ -96,6 +107,8 @@ export default class PAIPR extends React.Component {
             },
             typography: {
                 useNextVariants: true,
+                mainFont: 'Muli',
+                mainFontSize: 14,
             },
             overrides: {
                 MuiIconButton: { // Name of the component ⚛️ / style sheet
@@ -108,8 +121,12 @@ export default class PAIPR extends React.Component {
                 },
                 MuiDrawer: {
                     position: 'absolute',
+                    // width: '214px',
+                    // backgroundColor: '#EEF1FA',
                     paper: {
+                        width: '214px',
                         position: 'absolute',
+                        backgroundColor: '#EEF1FA',
                     },
                 },
             },
@@ -315,12 +332,25 @@ export default class PAIPR extends React.Component {
     //         </React.Fragment>
     //     );
     // }
-
+    handleMyFeedsClick() {
+        const {myFeedsOpen} = this.state;
+        
+        this.setState({
+            myFeedsOpen: !myFeedsOpen,
+        });
+    }
 
     render() {
         const response = this.parseResponse();
         const drawerWidth = 240;
         const appBarHeight = 70;
+        const listItemTextStyle = {
+            fontFamily: 'Muli',
+            fontSize: '24px',
+            marginLeft: "10px"
+        };
+
+        const {myFeedsOpen} = this.state;
 
         if (this.state.loggedIn
         // this.props.isComplete
@@ -341,7 +371,7 @@ export default class PAIPR extends React.Component {
                         padding: 8 * 2,
                         margin: 'auto',
                         width: "95%",
-                        minHeight:'300px',
+                        minHeight:'500px',
                         // maxWidth: 550,
                         backgroundColor: 'green',
                         position:'relative'
@@ -362,7 +392,8 @@ export default class PAIPR extends React.Component {
                                             src={logo}
                                             alt="SingularityNET logo"
                                             style={{
-                                                maxWidth: drawerWidth,
+                                                width:'190px',
+                                                // maxWidth: drawerWidth,
                                                 padding: '8px',
                                             }}
                                         />
@@ -371,41 +402,87 @@ export default class PAIPR extends React.Component {
                                             noWrap
                                             style={{
                                                 color: "gray",
+                                                fontFamily: 'Muli',
                                                 fontWeight: 'bold',
                                                 borderLeft: '1px solid #999',
                                                 padding: '0.5em',
                                                 flexGrow: 1,
                                             }}
                                         >
-                                            Personal AI Paper Recommender
+                                            Paper Recommender
                                         </Typography>
                                         <HoverIcon href={this.users_guide}>
                                             <HelpIcon/>
                                         </HoverIcon>
+                                        <Button
+                                            color="primary"
+                                            style={{fontSize: "14px", margin: '8px'}}
+                                        >
+                                            Login
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            style={{fontSize: "14px", margin: '8px'}}
+                                        >
+                                            Sign Up Free
+                                        </Button>
                                     </Toolbar>
                                 </AppBar>
                                 <Drawer
                                     style={{
                                         width: drawerWidth,
                                         flexShrink: 0,
-                                        // position: 'absolute !important',
                                     }}
                                     variant="permanent"
                                 >
                                     <div
-                                        // className={classes.toolbar}
+                                        style={{
+                                            minHeight: appBarHeight
+                                        }}
                                     />
                                     <List>
-                                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                                            <ListItem button key={text}>
-                                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon/> :
-                                                    <MailIcon/>}</ListItemIcon>
-                                                <ListItemText primary={text}/>
-                                            </ListItem>
-                                        ))}
+                                        <ListItem
+                                            button
+                                            key='Add Feed'
+                                        >
+                                            <ListItemText
+                                                disableTypography
+                                                primary={
+                                                    <Typography style={listItemTextStyle} >
+                                                        Add Feed
+                                                    </Typography>
+                                                }
+                                            />
+                                            <ListItemIcon>
+                                                <AddCircleIcon/>
+                                            </ListItemIcon>
+                                        </ListItem>
                                     </List>
                                     <Divider/>
                                     <List>
+                                        <ListItem button key='My Feeds' onClick={this.handleMyFeedsClick}>
+                                            <ListItemIcon>
+                                                <RssFeedIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary={
+                                                <Typography style={listItemTextStyle} >
+                                                    My Feeds
+                                                </Typography>
+                                            }/>
+                                            {myFeedsOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                                        </ListItem>
+                                        <Collapse in={myFeedsOpen} timeout="auto" unmountOnExit>
+                                            <List component="div" disablePadding>
+                                                <ListItem
+                                                    button
+                                                    style={{paddingLeft: '32px',}}
+                                                >
+                                                    <ListItemText secondary="No feeds added yet" />
+                                                </ListItem>
+                                            </List>
+                                        </Collapse>
+                                        {/*TODO: Use mapping to map users feeds to list
                                         {['All mail', 'Trash', 'Spam'].map((text, index) => (
                                             <ListItem button key={text}>
                                                 <ListItemIcon>{index % 2 === 0 ? <InboxIcon/> :
@@ -413,8 +490,62 @@ export default class PAIPR extends React.Component {
                                                 <ListItemText primary={text}/>
                                             </ListItem>
                                         ))}
+                                        */}
+                                    </List>
+                                    <Divider/>
+                                    <List>
+                                        <ListItem button key='Saved Articles'>
+                                            <ListItemIcon>
+                                                <BookmarkIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary={
+                                                <Typography style={listItemTextStyle} >
+                                                    Saved Articles
+                                                </Typography>
+                                            }/>
+                                        </ListItem>
+                                        <ListItem button key='Settings'>
+                                            <ListItemIcon>
+                                                <SettingsIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary={
+                                                <Typography style={listItemTextStyle} >
+                                                    Settings
+                                                </Typography>
+                                            }/>
+                                        </ListItem>
                                     </List>
                                 </Drawer>
+                                <main style={{
+                                    flexGrow: 1,
+                                    padding: '24px',
+                                    paddingLeft: '214px',
+                                }}>
+                                    <div style={{minHeight: appBarHeight}} />
+                                    <Typography paragraph>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                                        ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
+                                        facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
+                                        gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
+                                        donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                                        adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
+                                        Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
+                                        imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
+                                        arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
+                                        donec massa sapien faucibus et molestie ac.
+                                    </Typography>
+                                    <Typography paragraph>
+                                        Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
+                                        facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
+                                        tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
+                                        consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
+                                        vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
+                                        hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
+                                        tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
+                                        nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
+                                        accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
+                                    </Typography>
+                                </main>
                                 <Grid item xs={12} container alignItems="center" justify="space-between">
                                     <Grid item>
                                         <Typography
