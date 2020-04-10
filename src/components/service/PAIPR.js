@@ -521,7 +521,7 @@ export default class PAIPR extends React.Component {
                                     padding: '24px',
                                     paddingLeft: '214px',
                                 }}>
-                                    <div style={{minHeight: appBarHeight}} />
+                                    <div style={{minHeight: appBarHeight, paddingLeft: '214px',}} />
                                     <Typography paragraph>
                                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
                                         ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
